@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="styles.css">
+    <script src="qrcode.js" type="text/javascript"></script>
+    <script src="jquery.min.js" type="text/javascript"></script>
+    <title>GIS Attendance Form</title>
+</head>
+<body>
+    <h1>QR Code Generator & Scanner</h1>
+
+    <div id="container">
+    <!-- QR Generator -->
+        <div class="box">
+            <h2>Generate QR Code</h2>
+            <input id="name" type="text" placeholder="Name of Student" style="width: 100%;" />
+            <input id="lrn" type="text" placeholder="LRN" style="width: 100%;" />
+            <div id="qrcode" style="margin-top:10px;"></div>
+            <button id="generateBtn">Generate</button>
+        </div>
+
+        <!-- QR Scanner -->
+        <div class="box">
+            <h2>Scan QR Code</h2>
+            <label>Camera: <select id="cameraSelect"></select></label><br>
+            <button id="startBtn">Start Camera</button>
+            <button id="stopBtn" disabled>Stop</button>
+            <div style="margin-top: 8px;">
+            <video id="video" autoplay muted playsinline></video>
+            <canvas id="canvas" style="display:none;"></canvas>
+            </div>
+            <div style="margin-top: 8px;">
+            <input id="fileInput" type="file" accept="image/*">
+            </div>
+            <div id="lrnResult">LRN: </div>
+            <div id="nameResult">Name: </div>
+        </div>
+    </div>
+    <script src="script.js" type="text/javascript"></script>
+    <script src="jsQR.js" type="text/javascript"></script>
+</body>
+</html>
