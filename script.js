@@ -2,17 +2,22 @@
 const qrcode = new QRCode("qrcode");
 
 function makeCode() {
-  const elText = document.getElementById("text");
-  if (!elText.value) {
-    alert("Input a text");
+  const elText = document.getElementById("fullName");
+  const elLRN = document.getElementById("studLRN");
+
+  if (!elText.value || !elLRN.value) {
+    alert("Please input both Name and LRN");
     elText.focus();
     return;
   }
-  qrcode.makeCode(elText.value);
+
+  // Encode both Name and LRN so scanner can parse them
+  const qrData = `Name=${encodeURIComponent(elText.value)}&LRN=${encodeURIComponent(elLRN.value)}`;
+  qrcode.makeCode(qrData);
 }
 
 document.getElementById("generateBtn").addEventListener("click", makeCode);
-document.getElementById("text").addEventListener("keydown", e => {
+document.getElementById("fullName").addEventListener("keydown", e => {
   if (e.key === "Enter") makeCode();
 });
 
@@ -39,7 +44,7 @@ async function listCameras() {
   videoDevices.forEach((d, i) => {
     const opt = document.createElement('option');
     opt.value = d.deviceId;
-    opt.text = d.label || `Camera ${i+1}`;
+    opt.text = d.label || `Camera ${i + 1}`;
     cameraSelect.appendChild(opt);
   });
 }
@@ -115,10 +120,9 @@ function addToAttendance(data) {
   let student = {};
   data.split('&').forEach(part => {
     let [key, value] = part.split('=');
-    student[key] = value;
+    student[key] = decodeURIComponent(value || '');
   });
 
-  // Avoid duplicates by LRN
   if (!attendanceList.find(s => s.LRN === student.LRN)) {
     student.time = new Date().toLocaleTimeString();
     attendanceList.push(student);

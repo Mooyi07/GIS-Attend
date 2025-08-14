@@ -14,7 +14,10 @@
   <!-- QR Generator -->
   <div class="box">
     <h2>Generate QR Code</h2>
-    <input id="text" type="text" placeholder="Enter student data (LRN=123&Name=Juan)" />
+    <label for="fullName">Enter Full Name: (Ex. Juan A. Dela Cruz)</label><br>
+    <input id="fullName" type="text" placeholder="Enter Full Name" /><br>
+    <label for="studLRN">Enter Student LRN:</label><br>
+    <input id="studLRN" type="text" placeholder="Enter Student LRN" />
     <div id="qrcode" style="margin-top:10px;"></div>
     <button id="generateBtn">Generate</button>
   </div>
