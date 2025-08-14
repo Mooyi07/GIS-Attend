@@ -1,31 +1,36 @@
+/* ===== QR GENERATOR ===== */
 const qrcode = new QRCode("qrcode");
+
 function makeCode() {
-  const elText = document.getElementById("lrn");
-  const elName = document.getElementById("name");
-  console.log(elText.value + "&" + elName.value);
-  if (!elText.value || !elName.value) {
-    alert("Fill the important details");
+  const elText = document.getElementById("text");
+  if (!elText.value) {
+    alert("Input a text");
     elText.focus();
     return;
   }
-  qrcode.makeCode("lrn=" + elText.value + "&name=" + elName.value);
+  qrcode.makeCode(elText.value);
 }
+
 document.getElementById("generateBtn").addEventListener("click", makeCode);
+document.getElementById("text").addEventListener("keydown", e => {
+  if (e.key === "Enter") makeCode();
+});
 
 /* ===== QR SCANNER ===== */
 const video = document.getElementById('video');
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
-const lrnResultDiv = document.getElementById('lrnResult');
-const nameResultDiv = document.getElementById('nameResult');
+const resultDiv = document.getElementById('result');
 const startBtn = document.getElementById('startBtn');
 const stopBtn = document.getElementById('stopBtn');
 const cameraSelect = document.getElementById('cameraSelect');
 const fileInput = document.getElementById('fileInput');
+const attendanceTableBody = document.querySelector('#attendanceTable tbody');
 
 let stream = null;
 let scanning = false;
 let rafId = null;
+let attendanceList = [];
 
 async function listCameras() {
   const devices = await navigator.mediaDevices.enumerateDevices();
@@ -79,15 +84,8 @@ function tick() {
     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
     const code = jsQR(imageData.data, imageData.width, imageData.height, { inversionAttempts: 'attemptBoth' });
     if (code) {
-      console.log('QR Code found:', code);
-      code.data.split('&').forEach(part => {
-        const [key, value] = part.split('=');
-        if (key === 'lrn') {
-          lrnResultDiv.textContent = `LRN: ${value}`;
-        } else if (key === 'name') {
-          nameResultDiv.textContent = `Name: ${value}`;
-        }
-      });
+      resultDiv.textContent = code.data;
+      addToAttendance(code.data);
     }
   }
   rafId = requestAnimationFrame(tick);
@@ -103,10 +101,33 @@ fileInput.addEventListener('change', e => {
     ctx.drawImage(img, 0, 0);
     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
     const code = jsQR(imageData.data, imageData.width, imageData.height, { inversionAttempts: 'attemptBoth' });
-    resultDiv.textContent = code ? code.data : 'No QR code found in image.';
+    if (code) {
+      resultDiv.textContent = code.data;
+      addToAttendance(code.data);
+    } else {
+      resultDiv.textContent = 'No QR code found in image.';
+    }
   };
   img.src = URL.createObjectURL(file);
 });
+
+function addToAttendance(data) {
+  let student = {};
+  data.split('&').forEach(part => {
+    let [key, value] = part.split('=');
+    student[key] = value;
+  });
+
+  // Avoid duplicates by LRN
+  if (!attendanceList.find(s => s.LRN === student.LRN)) {
+    student.time = new Date().toLocaleTimeString();
+    attendanceList.push(student);
+
+    const row = document.createElement('tr');
+    row.innerHTML = `<td>${student.LRN || ''}</td><td>${student.Name || ''}</td><td>${student.time}</td>`;
+    attendanceTableBody.appendChild(row);
+  }
+}
 
 startBtn.addEventListener('click', startCamera);
 stopBtn.addEventListener('click', stopCamera);
