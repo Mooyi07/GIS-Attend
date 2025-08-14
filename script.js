@@ -4,16 +4,13 @@ const qrcode = new QRCode("qrcode");
 function makeCode() {
   const elText = document.getElementById("fullName");
   const elLRN = document.getElementById("studLRN");
-
   if (!elText.value || !elLRN.value) {
-    alert("Please input both Name and LRN");
+    alert("Input a text");
     elText.focus();
     return;
   }
-
-  // Encode both Name and LRN so scanner can parse them
-  const qrData = `Name=${encodeURIComponent(elText.value)}&LRN=${encodeURIComponent(elLRN.value)}`;
-  qrcode.makeCode(qrData);
+  // Include both Name and LRN in QR data
+  qrcode.makeCode(`Name=${encodeURIComponent(elText.value)}&LRN=${encodeURIComponent(elLRN.value)}`);
 }
 
 document.getElementById("generateBtn").addEventListener("click", makeCode);
@@ -30,6 +27,7 @@ const startBtn = document.getElementById('startBtn');
 const stopBtn = document.getElementById('stopBtn');
 const cameraSelect = document.getElementById('cameraSelect');
 const fileInput = document.getElementById('fileInput');
+const downloadBtn = document.getElementById('downloadBtn'); // New download button
 const attendanceTableBody = document.querySelector('#attendanceTable tbody');
 
 let stream = null;
@@ -44,7 +42,7 @@ async function listCameras() {
   videoDevices.forEach((d, i) => {
     const opt = document.createElement('option');
     opt.value = d.deviceId;
-    opt.text = d.label || `Camera ${i + 1}`;
+    opt.text = d.label || `Camera ${i+1}`;
     cameraSelect.appendChild(opt);
   });
 }
@@ -123,6 +121,7 @@ function addToAttendance(data) {
     student[key] = decodeURIComponent(value || '');
   });
 
+  // Avoid duplicates by LRN
   if (!attendanceList.find(s => s.LRN === student.LRN)) {
     student.time = new Date().toLocaleTimeString();
     attendanceList.push(student);
@@ -132,6 +131,27 @@ function addToAttendance(data) {
     attendanceTableBody.appendChild(row);
   }
 }
+
+// ===== Download Excel =====
+downloadBtn.addEventListener('click', () => {
+  if (attendanceList.length === 0) {
+    alert("No attendance records to export.");
+    return;
+  }
+
+  // Format data for Excel
+  const dataForExcel = attendanceList.map(s => ({
+    Timestamp: s.time,
+    LRN: s.LRN,
+    Name: s.Name
+  }));
+
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.json_to_sheet(dataForExcel);
+  XLSX.utils.book_append_sheet(wb, ws, "Attendance");
+
+  XLSX.writeFile(wb, "attendance.xlsx");
+});
 
 startBtn.addEventListener('click', startCamera);
 stopBtn.addEventListener('click', stopCamera);

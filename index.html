@@ -40,8 +40,11 @@
 </div>
 
 <!-- Attendance List -->
-<div class="box" style="margin-top: 20px; width: 100%;">
-  <h2>Attendance List</h2>
+<div class="box" style="margin-top: 20px; width: 70%;">
+
+    <div class="box-header" style="display: flex; justify-content: space-between; align-items: center;">
+        <h2>Attendance List</h2><button id="downloadBtn">Download Attendance Excel</button>
+    </div>
   <table id="attendanceTable">
     <thead>
       <tr>
@@ -57,5 +60,6 @@
 <script src="qrcode.js"></script>
 <script src="jsQR.js"></script>
 <script src="script.js"></script>
+<script src="xlsx.full.min.js"></script>
 </body>
 </html>
